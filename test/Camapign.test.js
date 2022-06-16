@@ -119,5 +119,38 @@ describe('Campaigns', () => {
 
        
     });
+
+
+    it('processes request', async () => {
+
+        await campaign.methods.contribute().send({
+            from: accounts[0],
+            value: web3.utils.toWei('10', 'ether')
+        }); // contribute to a campaign
+
+        await campaign.methods.createRequest('A', web3.utils.toWei('5' , 'ether'), accounts[1])
+              .send({from: accounts[0], gas : '1000000'}); // create new request by manager
+
+        await campaign.methods.approveRequest(0).send({
+            from: accounts[0],
+            gas: '1000000'
+        }); // vote for the request
+
+        await campaign.methods.finalizeRequest(0).send({
+            from: accounts[0],
+            gas: '1000000'
+        }); // finalize the request
+
+        let balance = await web3.eth.getBalance(accounts[1]); // getBalance returns string 
+
+        balance = web3.utils.fromWei(balance, 'ether');
+
+        balance = parseFloat(balance); // converts string to decimal number
+
+        console.log(balance);
+
+        assert(balance > 104)
+
+    });
 });
 
